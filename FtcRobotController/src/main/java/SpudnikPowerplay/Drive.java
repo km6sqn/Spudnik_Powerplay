@@ -72,6 +72,7 @@ public class Drive extends LinearOpMode {
     private DcMotorEx rightFrontDrive;
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
+    private DcMotorEx arm;
 
     //Encoder TARGET ticks
     private int leftFrontTicks;
@@ -85,7 +86,7 @@ public class Drive extends LinearOpMode {
     private boolean isDpadLeft = true;
     private boolean isDpadRight = true;
 
-    private int mode = 0;
+    private int mode = 1;
     //0 Run to pos.
     //1 Without encoders;
 
@@ -101,7 +102,7 @@ public class Drive extends LinearOpMode {
     public void runOpMode(){
 
         leftFrontDrive  = hardwareMap.get(DcMotorEx.class, "left_front");
-        leftFrontDrive.setDirection(DcMotorEx.Direction.REVERSE);
+       // leftFrontDrive.setDirection(DcMotorEx.Direction.REVERSE);
         leftFrontDrive.setTargetPosition(0);
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftFrontDrive.setMotorEnable();
@@ -109,11 +110,12 @@ public class Drive extends LinearOpMode {
 
         rightFrontDrive = hardwareMap.get(DcMotorEx.class, "right_front");
         rightFrontDrive.setTargetPosition(0);
+        rightFrontDrive.setDirection(DcMotorEx.Direction.REVERSE);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightFrontDrive.setMotorEnable();
 
         leftRearDrive = hardwareMap.get(DcMotorEx.class, "left_rear");
-        leftRearDrive.setDirection(DcMotorEx.Direction.REVERSE);
+        //leftRearDrive.setDirection(DcMotorEx.Direction.REVERSE);
         leftRearDrive.setTargetPosition(0);
         leftRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftRearDrive.setMotorEnable();
@@ -121,9 +123,12 @@ public class Drive extends LinearOpMode {
 
         rightRearDrive = hardwareMap.get(DcMotorEx.class, "right_rear");
         rightRearDrive.setTargetPosition(0);
+        rightRearDrive.setDirection(DcMotorEx.Direction.REVERSE);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightRearDrive.setMotorEnable();
 
+
+        arm = hardwareMap.get(DcMotorEx.class, "arm");
 
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -141,10 +146,61 @@ public class Drive extends LinearOpMode {
 
             if(mode == 0) goSomewhere(leftFrontTicks, rightFrontTicks, leftRearTicks, rightRearTicks);
             else{
-                leftFrontDrive.setPower(-gamepad1.left_stick_y);
-                rightFrontDrive.setPower(gamepad1.left_stick_y);
-                leftRearDrive.setPower(gamepad1.left_stick_y);
-                rightRearDrive.setPower(-gamepad1.left_stick_y);
+                /*
+                double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+                double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+                double rightX = gamepad1.right_stick_x;
+                 double v1 = r * Math.cos(robotAngle) + rightX;
+                 double v2 = r * Math.sin(robotAngle) - rightX;
+                double v3 = r * Math.sin(robotAngle) + rightX;
+                double v4 = r * Math.cos(robotAngle) - rightX;
+                /*
+                if(gamepad1.left_stick_x == 0){
+                    v1 = - v1;
+                    v2 = - v2;
+                    v3 = - v3;
+                    v4 = - v4;
+                }
+
+
+                leftFrontDrive.setPower(v1);
+                rightFrontDrive.setPower(v2);
+                leftRearDrive.setPower(-v3);
+                rightRearDrive.setPower(-v4);
+                */
+
+                double drive  = gamepad1.left_stick_y;
+                double strafe = gamepad1.left_stick_x;
+                double twist  = gamepad1.right_stick_x;
+                double[] speeds = {
+                        (drive - strafe - twist),
+                        (drive + strafe + twist),
+                        (drive + strafe - twist),
+                        (drive - strafe + twist)
+                };
+                double max = Math.abs(speeds[0]);
+                for(int i = 0; i < speeds.length; i++) {
+                    if ( max < Math.abs(speeds[i]) ) max = Math.abs(speeds[i]);
+                }
+
+                // If and only if the maximum is outside of the range we want it to be,
+                // normalize all the other speeds based on the given speed value.
+                if (max > 1) {
+                    for (int i = 0; i < speeds.length; i++) speeds[i] /= max;
+                }
+
+                // apply the calculated values to the motors.
+                leftFrontDrive.setPower(speeds[0]);
+                rightFrontDrive.setPower(speeds[1]);
+                leftRearDrive.setPower(speeds[2]);
+                rightRearDrive.setPower(speeds[3]);
+
+                if(gamepad2.dpad_up) arm.setPower(1);
+                else if(gamepad2.dpad_down) arm.setPower(-1);
+                else{
+                    arm.setPower(0);
+              //      arm.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior);
+                }
 
             }
 
@@ -194,7 +250,6 @@ public class Drive extends LinearOpMode {
             sleep(10);
         }
         else if( !isDpadUp && !gamepad1.dpad_up) isDpadUp = true;
-
 
         if(gamepad1.dpad_down && isDpadDown == true){
             leftFrontTicks -= 1000;
