@@ -76,6 +76,7 @@ public class DriveMaster extends LinearOpMode{
     private DcMotorEx rightRearDrive;
     private DcMotorEx arm;
 
+    private Servo clampServo;
     //Encoder TARGET ticks
     private int leftFrontTicks;
     private int rightFrontTicks;
@@ -88,7 +89,7 @@ public class DriveMaster extends LinearOpMode{
         while (opModeIsActive()){
             double drive  = gamepad1.left_stick_y;
             double strafe = gamepad1.left_stick_x;
-            double twist  = gamepad1.right_stick_x;
+            double twist  = gamepad1.right_stick_x / 2;
             double[] speeds = {
                     (drive - strafe - twist),
                     (drive + strafe + twist),
@@ -112,20 +113,25 @@ public class DriveMaster extends LinearOpMode{
             leftRearDrive.setPower(speeds[2]);
             rightRearDrive.setPower(speeds[3]);
 
-            if(gamepad1.dpad_up){
-                arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            if(gamepad1.dpad_up || gamepad2.dpad_up){
+               // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 arm.setPower(-1);
             }
-            else if(gamepad1.dpad_down){
-                arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                arm.setPower(-1);
+            else if(gamepad1.dpad_down || gamepad2.dpad_down){
+               // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                arm.setPower(1);
             }
             else{
                 arm.setPower(0);
-                arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            }
-        }
 
+               // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+            if(gamepad2.right_trigger >= .30) clampServo.setPosition(.7);
+            else clampServo.setPosition(0);
+        }
+        telemetry.addData("Arm Ticks", arm.getCurrentPosition());
+        telemetry.update();
     }
     public void initEverything () {
         leftFrontDrive = hardwareMap.get(DcMotorEx.class, "left_front");
@@ -155,8 +161,10 @@ public class DriveMaster extends LinearOpMode{
         rightRearDrive.setMotorEnable();
 
         arm = hardwareMap.get(DcMotorEx.class, "arm");
+        arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        arm.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-
+        clampServo = hardwareMap.get(Servo.class, "c");
     }
 
 }
