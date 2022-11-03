@@ -63,7 +63,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+@Disabled
 @TeleOp(name="Click This one", group="Linear Opmode")
 
 public class DriveMaster extends LinearOpMode{
