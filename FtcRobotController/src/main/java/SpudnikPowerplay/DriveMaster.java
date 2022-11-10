@@ -91,10 +91,10 @@ public class DriveMaster extends LinearOpMode{
             double strafe = gamepad1.left_stick_x;
             double twist  = gamepad1.right_stick_x / 2;
             double[] speeds = {
-                    (drive - strafe - twist),
-                    (drive + strafe + twist),
                     (drive + strafe - twist),
-                    (drive - strafe + twist)
+                    (drive - strafe + twist),
+                    (drive - strafe - twist),
+                    (drive + strafe + twist)
             };
             double max = Math.abs(speeds[0]);
             for(int i = 0; i < speeds.length; i++) {
@@ -127,7 +127,7 @@ public class DriveMaster extends LinearOpMode{
                // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            if(gamepad2.right_trigger >= .30) clampServo.setPosition(.7);
+            if(gamepad2.right_trigger >= .30 || gamepad1.right_trigger >= .30) clampServo.setPosition(1);
             else clampServo.setPosition(0);
         }
         telemetry.addData("Arm Ticks", arm.getCurrentPosition());

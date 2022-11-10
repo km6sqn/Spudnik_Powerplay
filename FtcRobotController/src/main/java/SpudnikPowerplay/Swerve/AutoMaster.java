@@ -37,7 +37,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
-@Autonomous(name="EX Blue En", group="Linear Opmode") //auto mode
+@Autonomous(name="Starting Right", group="Linear Opmode") //auto mode
 public class AutoMaster extends LinearOpMode { //class config
 
 
@@ -48,6 +48,7 @@ public class AutoMaster extends LinearOpMode { //class config
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
     private DcMotorEx arm;
+    private Servo clampServo;
 
 
     private BNO055IMU imu = null; //imu declaration
@@ -73,17 +74,37 @@ public class AutoMaster extends LinearOpMode { //class config
         initEverything();
 
         while (opModeIsActive()) { //while auto is running
+            clampServo.setPosition(0);
+            sleep(2500);
+            arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setTargetPosition(-300);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setVelocity(-1000);
+            sleep(100);
             goSomewhere(-100);
             strafeSomewhere(changeEncoder(31));
             goSomewhere(200);
-            goSomewhere(-changeEncoder(15));
-            arm.setTargetPosition(-1000);
-            arm.setVelocity(-1000);
+            goSomewhere(-changeEncoder(21));
+            arm.setTargetPosition(-3000);
+
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setVelocity(-1000);
             while(arm.isBusy()) getTelemetry();
+
             goSomewhereCustom(-changeEncoder(6), 250);
-            arm.setTargetPosition(-700);
+            arm.setTargetPosition(-2500);
             arm.setVelocity(100);
+
+
+
+            while(arm.isBusy()) getTelemetry();
+            clampServo.setPosition(1);
+            // clamp code
+            arm.setTargetPosition(0);
+            arm.setVelocity(1000);
+            goSomewhere(changeEncoder(3));
+            strafeSomewhere(changeEncoder(-12));
+            sleep(3000);
             getTelemetry(); //gets the telemetry
             getNumbers(); // gets the number for hte teltery
 
@@ -321,7 +342,7 @@ public class AutoMaster extends LinearOpMode { //class config
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setTargetPosition(0);
         arm.setMotorEnable();
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         /*
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setTargetPosition(0);
@@ -339,6 +360,9 @@ public class AutoMaster extends LinearOpMode { //class config
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator(); //log acceleration
         imu.initialize(parameters); //initialize all parameters
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000); //calibrate the paramete
+
+
+        clampServo = hardwareMap.get(Servo.class, "c");
 
 
 
@@ -382,7 +406,9 @@ public class AutoMaster extends LinearOpMode { //class config
         telemetry.addData("position", leftFrontDrive.getCurrentPosition());
         telemetry.addData("position", rightFrontDrive.getCurrentPosition());
         telemetry.addData("isBusy", leftFrontDrive.isBusy());
+        telemetry.addData("arm Ticks ", arm.getCurrentPosition());
         telemetry.update();
+
 
     }
 
