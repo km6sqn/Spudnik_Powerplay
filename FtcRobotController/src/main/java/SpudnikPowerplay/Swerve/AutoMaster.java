@@ -24,6 +24,8 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -34,9 +36,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.List;
 import java.util.Locale;
-
+@Disabled
 @Autonomous(name="Starting Right", group="Linear Opmode") //auto mode
 public class AutoMaster extends LinearOpMode { //class config
 
@@ -67,6 +73,10 @@ public class AutoMaster extends LinearOpMode { //class config
 
     private double leftPower= 0; //declare motor power on the left
     private double rightPower = 0; //declare motor power on the right
+    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+
+
 
     @Override
     public void runOpMode() {
@@ -74,6 +84,7 @@ public class AutoMaster extends LinearOpMode { //class config
         initEverything();
 
         while (opModeIsActive()) { //while auto is running
+
             clampServo.setPosition(0);
             sleep(2500);
             arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -411,6 +422,9 @@ public class AutoMaster extends LinearOpMode { //class config
 
 
     }
+
+
+
 
 }
 

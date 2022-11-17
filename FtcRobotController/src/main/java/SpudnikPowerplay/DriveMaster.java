@@ -55,6 +55,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import java.io.File;
@@ -63,8 +65,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-@Disabled
-@TeleOp(name="Click This one", group="Linear Opmode")
+
+@TeleOp(name="Click This one v2", group="Linear Opmode")
 
 public class DriveMaster extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
@@ -82,13 +84,20 @@ public class DriveMaster extends LinearOpMode{
     private int rightFrontTicks;
     private int leftRearTicks;
     private int rightRearTicks;
+
+
     @Override
     public void runOpMode() {
         initEverything();
+
+
         waitForStart();
         while (opModeIsActive()){
-            double drive  = gamepad1.left_stick_y;
-            double strafe = gamepad1.left_stick_x;
+
+
+
+            double drive  = gamepad1.left_stick_y * .7;
+            double strafe = -gamepad1.left_stick_x * .7;
             double twist  = gamepad1.right_stick_x / 2;
             double[] speeds = {
                     (drive + strafe - twist),
@@ -127,7 +136,7 @@ public class DriveMaster extends LinearOpMode{
                // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            if(gamepad2.right_trigger >= .30 || gamepad1.right_trigger >= .30) clampServo.setPosition(1);
+            if(gamepad2.right_trigger >= .30) clampServo.setPosition(1);
             else clampServo.setPosition(0);
         }
         telemetry.addData("Arm Ticks", arm.getCurrentPosition());
@@ -166,5 +175,9 @@ public class DriveMaster extends LinearOpMode{
 
         clampServo = hardwareMap.get(Servo.class, "c");
     }
+    /**
+     * Initialize the Vuforia localization engine.
+     */
+
 
 }
