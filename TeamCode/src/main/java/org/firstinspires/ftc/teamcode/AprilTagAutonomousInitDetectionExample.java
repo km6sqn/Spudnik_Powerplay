@@ -173,7 +173,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         }
         else
         {
-            /*            findObjects();
+            /*
 
              * Insert your autonomous code here, probably using the tag pose to decide your configuration.
              */

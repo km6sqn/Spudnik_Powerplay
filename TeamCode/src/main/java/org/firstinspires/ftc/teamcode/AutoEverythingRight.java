@@ -467,6 +467,7 @@ public class AutoEverythingRight extends LinearOpMode { //class config
         telemetry.setMsTransmissionInterval(50);
     }
     public int getCamera(){
+
         while (!isStarted() && !isStopRequested())
         {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
@@ -681,6 +682,7 @@ public class AutoEverythingRight extends LinearOpMode { //class config
             }
         }
 
+        assert tagOfInterest != null;
         return tagOfInterest.id;
     }
 }
