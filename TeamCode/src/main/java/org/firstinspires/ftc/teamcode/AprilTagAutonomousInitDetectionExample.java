@@ -216,19 +216,19 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         if(tagOfInterest == null)
         {
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-12));
+            strafeSomewhere(changeEncoder(-3));
         }
         else if(tagOfInterest.id == ID_TAG_OF_INTEREST){
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-3));
+            strafeSomewhere(changeEncoder(-22));
         }
         else if(tagOfInterest.id == OtherTag){
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-24));
+            strafeSomewhere(changeEncoder(-42));
         }
         else{
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-12));
+            strafeSomewhere(changeEncoder(-3));
         }
 
 
@@ -556,9 +556,9 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         arm.setVelocity(-1000);
         while(arm.isBusy()) getTelemetry();
 
-        goSomewhereCustom(-changeEncoder(6), 250);
+        goSomewhereCustom(-changeEncoder(5), 250);
 
-        goSomewhere(-changeEncoder(48));
+        //goSomewhere(-changeEncoder(48));
         arm.setTargetPosition(-2500);
         arm.setVelocity(100);
 
