@@ -47,8 +47,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@Autonomous(name="Starting Right With Camera", group="Linear Opmode") //auto mode
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
+@Autonomous(name="Starting Right With Camera - No Drop", group="Linear Opmode") //auto mode
+public class WithoutDrop extends LinearOpMode
 {
 
     private final ElapsedTime runtime = new ElapsedTime(); //tim
@@ -215,18 +215,19 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         /* Actually do something useful */
         if(tagOfInterest == null)
         {
-            dropConeInHighTower();
+            goSomewhere(changeEncoder(-20));
+            strafeSomewhere(changeEncoder(20));
         }
         else if(tagOfInterest.id == ID_TAG_OF_INTEREST){
-            dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-22));
+            goSomewhere(changeEncoder(-20));
         }
         else if(tagOfInterest.id == OtherTag){
-            dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-42));
+            goSomewhere(changeEncoder(-20));
+            strafeSomewhere(-changeEncoder(30));
         }
         else{
-            dropConeInHighTower();
+            goSomewhere(changeEncoder(-20));
+            strafeSomewhere(changeEncoder(20));
         }
 
 
