@@ -50,7 +50,6 @@ import java.util.ArrayList;
 @Autonomous(name="Starting Right With Camera - No Drop", group="Linear Opmode") //auto mode
 public class WithoutDrop extends LinearOpMode
 {
-
     private final ElapsedTime runtime = new ElapsedTime(); //tim
 
     private DcMotorEx leftFrontDrive;

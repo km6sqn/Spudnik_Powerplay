@@ -47,8 +47,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@Autonomous(name="Starting Right With Camera", group="Linear Opmode") //auto mode
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
+@Autonomous(name="Starting Right With Camera - Pick Cones", group="Linear Opmode") //auto mode
+public class PickCones extends LinearOpMode
 {
 
     private final ElapsedTime runtime = new ElapsedTime(); //tim
@@ -219,11 +219,11 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         }
         else if(tagOfInterest.id == ID_TAG_OF_INTEREST){
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-22));
+            goSomewhere(changeEncoder(22));
         }
         else if(tagOfInterest.id == OtherTag){
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(-42));
+            goSomewhere(changeEncoder(-22));
         }
         else{
             dropConeInHighTower();
@@ -537,37 +537,63 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
 
     //SUMMARIES
     public void dropConeInHighTower(){
+
+        //Servo grabs the Cone
         clampServo.setPosition(0);
         sleep(2500);
+
+        //Sets the arm
         arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         arm.setTargetPosition(-300);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setVelocity(-1000);
         sleep(100);
-        goSomewhere(-100);
-        strafeSomewhere(changeEncoder(31));
-        goSomewhere(200);
-        goSomewhere(-changeEncoder(21));
-        arm.setTargetPosition(-3000);
 
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setVelocity(-1000);
-        while(arm.isBusy()) getTelemetry();
+        //Robot heads to Pole D3
+        goSomewhere(-changeEncoder(61));
+        turnLeft(-90);
+        sleep(10000); //TO BE REPLACED
 
-        goSomewhereCustom(-changeEncoder(5), 250);
+        for(int i = 0; i < 5; i++) { //robot picks up cone 5 times
 
-        //goSomewhere(-changeEncoder(48));
-        arm.setTargetPosition(-2500);
-        arm.setVelocity(100);
+            //Raises arm up
+            arm.setTargetPosition(-3000);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setVelocity(-1000);
+
+            while (arm.isBusy()) getTelemetry();
+
+            //Slowly heads towards cone
+            goSomewhereCustom(-changeEncoder(5), 800);
+
+            //Lowers cone down
+            arm.setTargetPosition(-2500);
+            arm.setVelocity(100);
+            while (arm.isBusy()) getTelemetry();
+
+            //Drops the cone
+            clampServo.setPosition(1);
+
+            //Sets the arm towards the best cone
+            arm.setTargetPosition(changeEncoder(5 - i));
+            arm.setVelocity(1000);
+
+            //Backs away from the cone and heads to the cone pile
+            goSomewhere(changeEncoder(5));
+            strafeSomewhere(changeEncoder(12));
+            sleep(1000); //TO BE CHANGED
+
+            //Heads back to the pole area
+            goSomewhere(changeEncoder(-5));
+            if(i < 5) { // don't want to waste time by going to the cone site
+                strafeSomewhere(changeEncoder(-12));
+                goSomewhere(-10);
+            }
 
 
+        }
+        //heads back to the parking area
+        goSomewhere(-changeEncoder(61));
 
-        while(arm.isBusy()) getTelemetry();
-        clampServo.setPosition(1);
-        // clamp code
-        arm.setTargetPosition(0);
-        arm.setVelocity(1000);
-        goSomewhere(changeEncoder(3));
-        strafeSomewhere(changeEncoder(-12));
     }
 }
