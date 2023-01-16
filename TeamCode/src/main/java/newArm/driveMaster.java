@@ -1,4 +1,4 @@
-package SpudnikPowerplay;
+package newArm;
 import android.app.admin.DelegatedAdminReceiver;
 import android.widget.Button;
 import androidx.annotation.VisibleForTesting;
@@ -67,8 +67,8 @@ import java.util.List;
 import java.util.Locale;
 
 @TeleOp(name="Click This one v2", group="Linear Opmode")
-@Disabled
-public class DriveMaster extends LinearOpMode{
+
+public class driveMaster extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
 
     //Motor variables
@@ -77,8 +77,8 @@ public class DriveMaster extends LinearOpMode{
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
     private DcMotorEx arm;
+    private DcMotorEx claw;
 
-    private Servo clampServo;
     //Encoder TARGET ticks
     private int leftFrontTicks;
     private int rightFrontTicks;
@@ -123,21 +123,20 @@ public class DriveMaster extends LinearOpMode{
             rightRearDrive.setPower(speeds[3]);
 
             if(gamepad1.dpad_up || gamepad2.dpad_up){
-               // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 arm.setPower(-1);
             }
             else if(gamepad1.dpad_down || gamepad2.dpad_down){
-               // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 arm.setPower(1);
             }
             else{
                 arm.setPower(0);
 
-               // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            if(gamepad2.right_trigger >= .30) clampServo.setPosition(1);
-            else clampServo.setPosition(0);
+            claw.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
         }
         telemetry.addData("Arm Ticks", arm.getCurrentPosition());
         telemetry.update();
@@ -173,7 +172,8 @@ public class DriveMaster extends LinearOpMode{
         arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        clampServo = hardwareMap.get(Servo.class, "c");
+        claw = hardwareMap.get(DcMotorEx.class, "claw");
+        claw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
     /**
      * Initialize the Vuforia localization engine.

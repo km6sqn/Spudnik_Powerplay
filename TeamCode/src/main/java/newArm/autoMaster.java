@@ -19,12 +19,11 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package newArm;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -48,9 +47,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@Autonomous(name="Starting Right With Camera - Pick Cones", group="Linear Opmode") //auto mode
-@Disabled
-public class PickCones extends LinearOpMode
+@Autonomous(name="Starting Right With Camera", group="Linear Opmode") //auto mode
+public class autoMaster extends LinearOpMode
 {
 
     private final ElapsedTime runtime = new ElapsedTime(); //tim
@@ -60,7 +58,7 @@ public class PickCones extends LinearOpMode
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
     private DcMotorEx arm;
-    private Servo clampServo;
+    private DcMotorEx claw;
 
 
     private BNO055IMU imu = null; //imu declaration
@@ -176,8 +174,7 @@ public class PickCones extends LinearOpMode
                 }
 
             }
-            else            goSomewhere(changeEncoder(5));
-
+            else
             {
                 telemetry.addLine("Don't see tag of interest :(");
 
@@ -222,11 +219,11 @@ public class PickCones extends LinearOpMode
         }
         else if(tagOfInterest.id == ID_TAG_OF_INTEREST){
             dropConeInHighTower();
-            goSomewhere(changeEncoder(22));
+            strafeSomewhere(changeEncoder(-22));
         }
         else if(tagOfInterest.id == OtherTag){
             dropConeInHighTower();
-            goSomewhere(changeEncoder(-22));
+            strafeSomewhere(changeEncoder(-42));
         }
         else{
             dropConeInHighTower();
@@ -298,8 +295,7 @@ public class PickCones extends LinearOpMode
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000); //calibrate the paramete
 
 
-        clampServo = hardwareMap.get(Servo.class, "c");
-
+        claw = hardwareMap.get(DcMotorEx.class, "claw");
 
         runtime.reset();
         // run until the end of the match (driver presses STOP)
@@ -402,35 +398,35 @@ public class PickCones extends LinearOpMode
         rightFrontDrive.setMotorEnable();
         leftRearDrive.setMotorEnable();
         rightRearDrive.setMotorEnable();
-        leftFrontDrive.setTargetPosition(10000);
-        rightFrontDrive.setTargetPosition(-10000);
-        leftRearDrive.setTargetPosition(10000);
-        rightRearDrive.setTargetPosition(-10000);
-        leftFrontDrive.setVelocity(2000);
-        rightFrontDrive.setVelocity(-2000);
-        rightRearDrive.setVelocity(2000);
-        leftRearDrive.setVelocity(-2000);
+        leftFrontDrive.setTargetPosition(-10000);
+        rightFrontDrive.setTargetPosition(10000);
+        leftRearDrive.setTargetPosition(-10000);
+        rightRearDrive.setTargetPosition(10000);
+        leftFrontDrive.setVelocity(-2000);
+        rightFrontDrive.setVelocity(2000);
+        rightRearDrive.setVelocity(-2000);
+        leftRearDrive.setVelocity(2000);
 
         while(leftFrontDrive.isBusy() || rightFrontDrive.isBusy()){
             getTelemetry();
             getNumbers();
             if(curHeading >= degrees - 50) {
-                leftFrontDrive.setVelocity(-1000);
-                rightFrontDrive.setVelocity(1000);
-                leftRearDrive.setVelocity(-1000);
-                rightRearDrive.setVelocity(1000);
+                leftFrontDrive.setVelocity(1000);
+                rightFrontDrive.setVelocity(-1000);
+                leftRearDrive.setVelocity(1000);
+                rightRearDrive.setVelocity(-1000);
             }
             if(curHeading >= degrees - 40) {
-                leftFrontDrive.setVelocity(-500);
-                rightFrontDrive.setVelocity(500);
-                leftRearDrive.setVelocity(-500);
-                rightRearDrive.setVelocity(500);
+                leftFrontDrive.setVelocity(500);
+                rightFrontDrive.setVelocity(-500);
+                leftRearDrive.setVelocity(500);
+                rightRearDrive.setVelocity(-500);
             }
             if(curHeading >= degrees - 5){
-                leftFrontDrive.setVelocity(-10);
-                rightFrontDrive.setVelocity(10);
-                leftRearDrive.setVelocity(-10);
-                rightRearDrive.setVelocity(10);
+                leftFrontDrive.setVelocity(10);
+                rightFrontDrive.setVelocity(-10);
+                leftRearDrive.setVelocity(10);
+                rightRearDrive.setVelocity(-10);
             }
             if(curHeading >= degrees){
                 break;
@@ -540,64 +536,42 @@ public class PickCones extends LinearOpMode
 
     //SUMMARIES
     public void dropConeInHighTower(){
-
-        //Servo grabs the Cone
-        clampServo.setPosition(0);
         sleep(2500);
-
-        //Sets the arm
         arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         arm.setTargetPosition(-300);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setVelocity(-1000);
         sleep(100);
+        goSomewhere(-100);
+        strafeSomewhere(changeEncoder(31));
+        goSomewhere(200);
+        goSomewhere(-changeEncoder(21));
+        arm.setTargetPosition(-3000);
 
-        //Robot heads to Pole D3
-        goSomewhere(-changeEncoder(55));
-        turnLeft(70);
-        sleep(5000); //TO BE REPLACED
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setVelocity(-1000);
+        while(arm.isBusy()) getTelemetry();
 
-        for(int i = 0; i < 5; i++) { //robot picks up cone 5 times
+        goSomewhereCustom(-changeEncoder(5), 250);
 
-            //Raises arm up
-            arm.setTargetPosition(-3000);
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm.setVelocity(-1000);
-
-            while (arm.isBusy()) getTelemetry();
-
-            //Slowly heads towards cone
-            goSomewhereCustom(-changeEncoder(5), 800);
-
-            //Lowers cone down
-            arm.setTargetPosition(-2500);
-            arm.setVelocity(100);
-            while (arm.isBusy()) getTelemetry();
-
-            //Drops the cone
-            clampServo.setPosition(1);
-
-            //Sets the arm towards the best cone
-            arm.setTargetPosition(changeEncoder(5 - i));
-            arm.setVelocity(1000);
-
-            //Backs away from the cone and heads to the cone pile
-
-            if(i < 5) { // don't want to waste time by going to the cone site
-                strafeSomewhere(changeEncoder(12));
-                goSomewhere(-changeEncoder(5));
-                sleep(5000); //TO BE CHANGED
-
-                //Heads back to the pole area
-                goSomewhere(changeEncoder(12));
-                strafeSomewhere(changeEncoder(-12));
-                goSomewhere(-10);
-            }
+        //goSomewhere(-changeEncoder(48));
+        arm.setTargetPosition(-2500);
+        arm.setVelocity(100);
 
 
-        }
-        //heads back to the parking area
-        goSomewhere(-changeEncoder(61));
 
+        while(arm.isBusy()) getTelemetry();
+        claw.setPower(-1);
+        sleep(1000);
+        claw.setPower(0);
+        // clamp code
+        arm.setTargetPosition(-3000);
+        arm.setVelocity(-1000);
+        while(arm.isBusy());
+
+        goSomewhere(changeEncoder(3));
+        arm.setTargetPosition(0);
+        arm.setVelocity(1000);
+        strafeSomewhere(changeEncoder(-12));
     }
 }
