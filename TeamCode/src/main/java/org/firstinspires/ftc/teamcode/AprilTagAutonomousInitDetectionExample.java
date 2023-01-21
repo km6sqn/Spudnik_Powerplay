@@ -48,7 +48,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@Autonomous(name="Starting Right With Camera", group="Linear Opmode") //auto mode
+@Autonomous(name="Starting Right With Camera test", group="Linear Opmode") //auto mode
 @Disabled
 public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
 {

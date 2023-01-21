@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.Locale;
 
 @TeleOp(name="Click This one", group="Linear Opmode")
-
+@Disabled
 public class Master extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
 

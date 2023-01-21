@@ -51,7 +51,7 @@ import java.util.ArrayList;
 public class autoMaster extends LinearOpMode
 {
 
-    private final ElapsedTime runtime = new ElapsedTime(); //tim
+    private final ElapsedTime runtime = new ElapsedTime(); //
 
     private DcMotorEx leftFrontDrive;
     private DcMotorEx rightFrontDrive;
@@ -276,6 +276,9 @@ public class autoMaster extends LinearOpMode
         arm.setTargetPosition(0);
         arm.setMotorEnable();
         arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        claw = hardwareMap.get(DcMotorEx.class, "claw");
+        claw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         /*
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setTargetPosition(0);
@@ -538,6 +541,7 @@ public class autoMaster extends LinearOpMode
     public void dropConeInHighTower(){
         sleep(2500);
         arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        claw.setPower(.5);
         arm.setTargetPosition(-300);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setVelocity(-1000);
@@ -557,8 +561,6 @@ public class autoMaster extends LinearOpMode
         //goSomewhere(-changeEncoder(48));
         arm.setTargetPosition(-2500);
         arm.setVelocity(100);
-
-
 
         while(arm.isBusy()) getTelemetry();
         claw.setPower(-1);

@@ -66,8 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@TeleOp(name="Click This one v2", group="Linear Opmode")
-
+@TeleOp(name="Click This one v3", group="Linear Opmode")
 public class driveMaster extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -78,7 +77,7 @@ public class driveMaster extends LinearOpMode{
     private DcMotorEx rightRearDrive;
     private DcMotorEx arm;
     private DcMotorEx claw;
-
+    private Servo clampServo;
     //Encoder TARGET ticks
     private int leftFrontTicks;
     private int rightFrontTicks;
@@ -136,7 +135,12 @@ public class driveMaster extends LinearOpMode{
                 // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            claw.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            if(gamepad2.right_trigger >= .30) clampServo.setPosition(1);
+            else clampServo.setPosition(0);
+            if(gamepad2.left_trigger >= .3) claw.setPower(-1);
+            if(gamepad2.right_trigger >= .3) claw.setPower(1);
+            else claw.setPower(.2);
+
         }
         telemetry.addData("Arm Ticks", arm.getCurrentPosition());
         telemetry.update();
@@ -174,6 +178,8 @@ public class driveMaster extends LinearOpMode{
 
         claw = hardwareMap.get(DcMotorEx.class, "claw");
         claw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        clampServo = hardwareMap.get(Servo.class, "c");
     }
     /**
      * Initialize the Vuforia localization engine.

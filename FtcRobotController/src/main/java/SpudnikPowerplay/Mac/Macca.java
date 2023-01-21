@@ -1,4 +1,4 @@
-package SpudnikPowerplay.Swerve;
+package SpudnikPowerplay.Mac;
 import android.app.admin.DelegatedAdminReceiver;
 import android.widget.Button;
 import androidx.annotation.VisibleForTesting;
@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.Locale;
 
 @TeleOp(name="Maccas", group="Linear Opmode")
-
+@Disabled
 public class Macca extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
 
