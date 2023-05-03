@@ -19,16 +19,15 @@
  * SOFTWARE.
  */
 
-package newArm;
+package newBot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -43,11 +42,10 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
-
-@Autonomous(name="Starting Right With Camera: BACKUP", group="Linear Opmode") //auto mode
+@Disabled
+@Autonomous(name="Starting Right With Camera", group="Linear Opmode") //auto mode
 public class autoMaster extends LinearOpMode
 {
 
@@ -57,9 +55,11 @@ public class autoMaster extends LinearOpMode
     private DcMotorEx rightFrontDrive;
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
-    private DcMotorEx arm;
+    private DcMotorEx arm1, arm2;
     private DcMotorEx claw;
 
+
+    private final double CONVERT_TO_19 = 2.65104166667;
 
     private BNO055IMU imu = null; //imu declaration
     private Orientation angles; //heading degree variable
@@ -202,20 +202,18 @@ public class autoMaster extends LinearOpMode
         if(tagOfInterest == null)
         {
             dropConeInHighTower();
-            strafeSomewhere(changeEncoder(22));
         }
         else if(tagOfInterest.id == ID_TAG_OF_INTEREST){
             dropConeInHighTower();
-           // strafeSomewhere(changeEncoder(-22));
+           strafeSomewhere(changeEncoder(-22));
         }
         else if(tagOfInterest.id == OtherTag){
             dropConeInHighTower();
-           // strafeSomewhere(changeEncoder(-42));
-            strafeSomewhere(changeEncoder(-22));
+           strafeSomewhere(changeEncoder(-48));
+           // strafeSomewhere(changeEncoder(-22));
         }
         else{
             dropConeInHighTower();
-            strafeSomewhere(22);
 
         }
 
@@ -262,10 +260,15 @@ public class autoMaster extends LinearOpMode
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMotorEnable();
 
-        arm = hardwareMap.get(DcMotorEx.class, "arm");
-        arm.setTargetPosition(0);
-        arm.setMotorEnable();
-        arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        arm1 = hardwareMap.get(DcMotorEx.class, "arm1");
+        arm1.setTargetPosition(0);
+        arm1.setMotorEnable();
+        arm1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        arm2 = hardwareMap.get(DcMotorEx.class, "arm2");
+        arm2.setTargetPosition(0);
+        arm2.setMotorEnable();
+        arm2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         claw = hardwareMap.get(DcMotorEx.class, "claw");
         claw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -329,7 +332,7 @@ public class autoMaster extends LinearOpMode
         telemetry.addData("position", leftFrontDrive.getCurrentPosition());
         telemetry.addData("position", rightFrontDrive.getCurrentPosition());
         telemetry.addData("isBusy", leftFrontDrive.isBusy());
-        telemetry.addData("arm Ticks ", arm.getCurrentPosition());
+        telemetry.addData("arm Ticks ", arm1.getCurrentPosition());
         telemetry.update();
 
 
@@ -530,47 +533,59 @@ public class autoMaster extends LinearOpMode
     //SUMMARIES
     public void dropConeInHighTower(){
 
-        goSomewhere(-changeEncoder(21));
-        /*
-        claw.setPower(1);
-        sleep(500);
+      //  goSomewhere(-changeEncoder(21));
+
+      //  arm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+       // arm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
         claw.setPower(0);
-        sleep(2000);
-        //arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        claw.setPower(0);
-        //arm.setTargetPosition(-300);
-        //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        sleep(100);
+       // arm1.setTargetPosition(-300);arm2.setTargetPosition(-300);
+
+       // arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);        arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+       // sleep(1000);
+
         goSomewhere(-100);
-        strafeSomewhere(changeEncoder(31));
+        sleep(500);
+        strafeSomewhere(changeEncoder(32));
         goSomewhere(200);
-        goSomewhere(-changeEncoder(21));
-        //arm.setTargetPosition(-3000);
 
-        //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //arm.setVelocity(-1000);
-        //while(arm.isBusy()) getTelemetry();
+        goSomewhere(-changeEncoder(22));
 
-        goSomewhereCustom(-changeEncoder(5), 250);
+        arm1.setTargetPosition(500);        arm2.setTargetPosition(-500);
+        arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);       arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION); //run arm up
+        arm1.setVelocity(1000);        arm2.setVelocity(-1000);
 
-        //goSomewhere(-changeEncoder(48));
-        //arm.setTargetPosition(-2500);
-        //arm.setVelocity(100);
 
-        //while(arm.isBusy()) getTelemetry();
-        //claw.setPower(-1);
-        sleep(1000);
-        //claw.setPower(0);
-        // clamp code
-        //arm.setTargetPosition(-3000);
-        //arm.setVelocity(-1000);
-        //while(arm.isBusy());
 
-        goSomewhere(changeEncoder(3));
-        //arm.setTargetPosition(0);
-        //arm.setVelocity(1000);
-        strafeSomewhere(changeEncoder(-12));
+        sleep(2000); //wait for arm
 
-         */
+
+        arm1.setVelocity(100);        arm2.setVelocity(100); //keep arm going up
+
+        goSomewhereCustom(-changeEncoder(7), 250); //creep forward
+
+
+        claw.setPower(-1);
+        sleep(500); //drop cone
+        claw.setPower(0);
+
+
+
+
+        goSomewhereCustom(changeEncoder(4), 250);
+
+
+
+
+
+
+        arm1.setVelocity(0); arm2.setVelocity(0); //
+
+
+        strafeSomewhere(-changeEncoder(12));
+
+
     }
 }

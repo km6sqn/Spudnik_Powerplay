@@ -1,72 +1,17 @@
-package newArm;
-import android.app.admin.DelegatedAdminReceiver;
-import android.widget.Button;
-import androidx.annotation.VisibleForTesting;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.hardware.rev.RevTouchSensor;
+package newBot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-import java.util.Locale;
-
-import android.graphics.Bitmap;
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.RobotLog;
-import com.qualcomm.robotcore.util.ThreadPool;
-import com.vuforia.Frame;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 //import org.firstinspires.ftc.robotcore.external.hardware.Consumer;
 //import org.firstinspires.ftc.robotcore.external.hardware.Continuation;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.MatrixF;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-@TeleOp(name="Click This one: BACKUP", group="Linear Opmode")
+@Disabled
+@TeleOp(name="Click This one v3", group="Linear Opmode")
 public class driveMaster extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -75,7 +20,7 @@ public class driveMaster extends LinearOpMode{
     private DcMotorEx rightFrontDrive;
     private DcMotorEx leftRearDrive;
     private DcMotorEx rightRearDrive;
-    private DcMotorEx arm;
+    private DcMotorEx arm1, arm2;
     private DcMotorEx claw;
     private Servo clampServo;
     //Encoder TARGET ticks
@@ -91,13 +36,12 @@ public class driveMaster extends LinearOpMode{
 
 
         waitForStart();
-        while (opModeIsActive()){
+        while (opModeIsActive()) {
 
 
-
-            double drive  = gamepad1.left_stick_y * .7;
-            double strafe = -gamepad1.left_stick_x * .7;
-            double twist  = gamepad1.right_stick_x / 2;
+            double drive = gamepad1.left_stick_y * .85;
+            double strafe = -gamepad1.left_stick_x * .85;
+            double twist = gamepad1.right_stick_x * .6;
             double[] speeds = {
                     (drive + strafe - twist),
                     (drive - strafe + twist),
@@ -105,8 +49,8 @@ public class driveMaster extends LinearOpMode{
                     (drive + strafe + twist)
             };
             double max = Math.abs(speeds[0]);
-            for(int i = 0; i < speeds.length; i++) {
-                if ( max < Math.abs(speeds[i]) ) max = Math.abs(speeds[i]);
+            for (int i = 0; i < speeds.length; i++) {
+                if (max < Math.abs(speeds[i])) max = Math.abs(speeds[i]);
             }
 
             // If and only if the maximum is outside of the range we want it to be,
@@ -121,28 +65,41 @@ public class driveMaster extends LinearOpMode{
             leftRearDrive.setPower(speeds[2]);
             rightRearDrive.setPower(speeds[3]);
 
-            if(gamepad1.dpad_up || gamepad2.dpad_up){
+            if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                arm.setPower(-1);
+                arm1.setPower(-1);
+                arm2.setPower(-1);
+
             }
             else if(gamepad1.dpad_down || gamepad2.dpad_down){
                 // arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                arm.setPower(1);
+                arm1.setPower(1);
+                arm2.setPower(1);
             }
             else{
-                arm.setPower(0);
+                arm1.setPower(0);
+                arm2.setPower(0);
 
                 // arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            if(gamepad1.a){
+
+                    leftFrontDrive.setPower(1);
+                    rightFrontDrive.setPower(1);
+                    leftRearDrive.setPower(1);
+                    rightRearDrive.setPower(1);
+
             }
 
             if(gamepad2.right_trigger >= .30) clampServo.setPosition(1);
             else clampServo.setPosition(0);
+
             if(gamepad2.left_trigger >= .3) claw.setPower(-1);
-            if(gamepad2.right_trigger >= .3) claw.setPower(1);
+            else if(gamepad2.right_trigger >= .3) claw.setPower(.85);
             else claw.setPower(.1);
 
         }
-        telemetry.addData("Arm Ticks", arm.getCurrentPosition());
+        telemetry.addData("Arm Ticks", arm1.getCurrentPosition());
         telemetry.update();
     }
     public void initEverything () {
@@ -172,9 +129,13 @@ public class driveMaster extends LinearOpMode{
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMotorEnable();
 
-        arm = hardwareMap.get(DcMotorEx.class, "arm");
-        arm.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        arm.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        arm1 = hardwareMap.get(DcMotorEx.class, "arm1");
+        arm1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        arm1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        arm2 = hardwareMap.get(DcMotorEx.class, "arm2");
+        arm2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        arm2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
 
         claw = hardwareMap.get(DcMotorEx.class, "claw");
         claw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
