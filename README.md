@@ -3,7 +3,7 @@
 This repository contains the public FTC SDK for the Freight Frenzy (2021-2022) competition season.  Editied by team Spudnik #10006
 
 
-##Spudnik 10006 Team Code
+## Spudnik 10006 Team Code
 
 
 
